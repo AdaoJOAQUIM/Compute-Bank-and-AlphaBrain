@@ -1,0 +1,15 @@
+[package]
+name = "ftc-findings"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ftc-core   = { path = "../ftc-core" }
+ftc-sim    = { path = "../ftc-sim" }
+rand       = "0.8"
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bin]]
+name = "run-emergence-tests"
+path = "src/main.rs"

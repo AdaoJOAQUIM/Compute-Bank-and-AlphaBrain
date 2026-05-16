@@ -1,0 +1,3 @@
+[workspace]
+members = ["ftc-core", "ftc-sim", "ftc-findings"]
+resolver = "2"
