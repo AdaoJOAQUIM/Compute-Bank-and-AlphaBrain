@@ -1,13 +1,16 @@
 // Field Theory of Computation — Research Runner
 //
-// Answers the four pre-code questions, then runs E1–E10.
+// Answers the four pre-code questions, then runs E1–E10 (Phase I)
+// followed by the Phase II systematic experiments (II.1–II.3 + unification).
 //
 // Usage:  cargo run --bin run-emergence-tests
 
 mod emergence;
+mod phase2;
 
-use ftc_findings::FtcFindings;
+use ftc_findings::{FtcFindings, Phase2Findings};
 use emergence::*;
+use phase2::*;
 
 fn main() {
     println!("═══════════════════════════════════════════════════════════");
@@ -177,10 +180,94 @@ fn main() {
                  "not yet improving — consolidation incomplete"
              });
 
-    // Emit JSON for machine-readable downstream analysis
+    // Emit Phase I JSON
     let json = serde_json::to_string_pretty(&f).expect("serialisation failed");
     std::fs::write("ftc_findings.json", &json).expect("could not write ftc_findings.json");
     println!("\nFindings written to ftc_findings.json");
+
+    // ── Phase II ─────────────────────────────────────────────────────────────
+    println!("\n════════════════════════════════════════════════════════════");
+    println!(" PHASE II — SYSTEMATIC OPEN QUESTION EXPERIMENTS");
+    println!("════════════════════════════════════════════════════════════\n");
+
+    let mut f2 = Phase2Findings::new();
+
+    println!("Running II.1 — Routing depth H(N,d,s) for N∈{{5,10,20,50}} …");
+    println!("  (measuring empirical curve vs conjecture H=O(log N/s²))");
+    run_ii1_routing_depth(&mut f2);
+    println!("  Conjecture holds: {}   violations: {}",
+             if f2.ii1_conjecture_holds { "YES" } else { "NO" },
+             f2.ii1_conjecture_violations);
+    println!("  Empirical fit: {}", f2.ii1_empirical_formula);
+    println!("  Routing table:");
+    println!("  {:>5} {:>6} {:>10} {:>14} {:>8}",
+             "N", "s", "mean_hops", "conjectured", "holds?");
+    for pt in &f2.routing_points {
+        println!("  {:>5} {:>6.2} {:>10.2} {:>14.2} {:>8}",
+                 pt.n, pt.similarity, pt.mean_hops,
+                 pt.conjectured_bound,
+                 if pt.conjecture_holds { "✓" } else { "✗" });
+    }
+
+    println!("\nRunning II.2 — Consolidation Nash equilibrium (2000 ticks) …");
+    println!("  (sampling basin radii every 100 ticks; CV convergence test)");
+    run_ii2_consolidation(&mut f2);
+    println!("  Converged (CV<0.15 in last 5 snapshots): {}",
+             if f2.ii2_converged { "YES" } else { "NO" });
+    println!("  Final CV: {:.4}", f2.ii2_final_cv);
+    println!("  Top-10 basin ratio (final/initial): {:.3}", f2.ii2_top_radius_ratio);
+    println!("  Bot-10 basin ratio (final/initial): {:.3}", f2.ii2_bot_radius_ratio);
+    if f2.consolidation_ticks.len() >= 3 {
+        println!("  Basin radius time-series (top / bot):");
+        let step = f2.consolidation_ticks.len() / 5;
+        for i in (0..f2.consolidation_ticks.len()).step_by(step.max(1)).take(6) {
+            let t  = f2.consolidation_ticks[i];
+            let rt = f2.consolidation_top_radii.get(i).copied().unwrap_or(0.0);
+            let rb = f2.consolidation_bot_radii.get(i).copied().unwrap_or(0.0);
+            println!("    tick {:>5}  top={:.3}  bot={:.3}", t, rt, rb);
+        }
+    }
+
+    println!("\nRunning II.3 — W-CRDT stress test (10 patterns, partition+merge) …");
+    run_ii3_crdt_stress(&mut f2);
+    println!("  Patterns tested:   {}", f2.ii3_patterns_tested);
+    println!("  Patterns survived (≥0.90 sim): {}/{}", f2.ii3_patterns_survived, f2.ii3_patterns_tested);
+    println!("  Mean similarity after merge: {:.3}", f2.ii3_merge_mean_similarity);
+    println!("  Min  similarity after merge: {:.3}", f2.ii3_merge_min_similarity);
+    println!("  Survived mean |E|:  {:.4}   Failed mean |E|: {:.4}",
+             f2.ii3_survived_mean_energy, f2.ii3_failed_mean_energy);
+    print_result("II.3 robust", f2.ii3_crdt_robust,
+        &format!("{}/{} patterns survive multi-merge",
+                 f2.ii3_patterns_survived, f2.ii3_patterns_tested));
+
+    println!("\nRunning Unification metric — 2000-tick deep measurement …");
+    run_unification_2000(&mut f2, &mut f);
+    println!("  Jaccard(SGR path, Hebbian history) after 2000 ticks: {:.3}",
+             f2.unification_jaccard_2000);
+    println!("  Mean W coupling across node pairs: {:.4}", f2.unification_mean_coupling);
+    println!("  Unification verdict: {}", f2.unification_verdict_2000);
+
+    // ── Phase II summary ──────────────────────────────────────────────────────
+    println!("\n════════════════════════════════════════════════════════════");
+    println!(" PHASE II SUMMARY");
+    println!("════════════════════════════════════════════════════════════");
+    println!(" II.1 H(N,d,s) conjecture: {}",
+             if f2.ii1_conjecture_holds { "HOLDS — SGR is O(log N/s²)" }
+             else { "PARTIAL — some (N,s) pairs exceed bound" });
+    println!(" II.2 Nash convergence:    {}   (CV={:.4})",
+             if f2.ii2_converged { "CONVERGED" } else { "OSCILLATING" },
+             f2.ii2_final_cv);
+    println!(" II.3 W-CRDT robustness:   {}   ({}/{} patterns)",
+             if f2.ii3_crdt_robust { "ROBUST" } else { "FRAGILE" },
+             f2.ii3_patterns_survived, f2.ii3_patterns_tested);
+    println!(" Unification (2000t):      {}   (Jaccard={:.3})",
+             f2.unification_verdict_2000, f2.unification_jaccard_2000);
+
+    // Emit Phase II JSON
+    let json2 = serde_json::to_string_pretty(&f2).expect("serialisation failed");
+    std::fs::write("phase2_findings.json", &json2)
+        .expect("could not write phase2_findings.json");
+    println!("\nPhase II findings written to phase2_findings.json");
     println!("════════════════════════════════════════════════════════════\n");
 }
 

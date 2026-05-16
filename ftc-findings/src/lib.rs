@@ -1,5 +1,55 @@
 use serde::{Deserialize, Serialize};
 
+// ── Phase II data structures ──────────────────────────────────────────────────
+
+/// One data point in the H(N, d, s) routing-depth experiment.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RoutingPoint {
+    pub n: usize,
+    pub similarity: f64,
+    pub mean_hops: f64,
+    pub mean_fidelity: f64,
+    pub log_n: f64,
+    pub conjectured_bound: f64,
+    pub conjecture_holds: bool,
+}
+
+/// All Phase II findings in one struct (serialised to phase2_findings.json).
+#[derive(Debug, Serialize, Deserialize, Default)]
+pub struct Phase2Findings {
+    // II.1 — routing depth
+    pub routing_points:           Vec<RoutingPoint>,
+    pub ii1_conjecture_holds:     bool,
+    pub ii1_conjecture_violations: usize,
+    pub ii1_fit_coefficient:      f64,
+    pub ii1_fit_r_squared:        f64,
+    pub ii1_empirical_formula:    String,
+
+    // II.2 — consolidation Nash
+    pub ii2_converged:            bool,
+    pub ii2_final_cv:             f64,
+    pub ii2_top_radius_ratio:     f64,
+    pub ii2_bot_radius_ratio:     f64,
+    pub ii2_ticks_to_observe:     usize,
+    pub consolidation_ticks:      Vec<u64>,
+    pub consolidation_top_radii:  Vec<f64>,
+    pub consolidation_bot_radii:  Vec<f64>,
+
+    // II.3 — W-CRDT stress
+    pub ii3_patterns_tested:      usize,
+    pub ii3_patterns_survived:    usize,
+    pub ii3_merge_mean_similarity: f64,
+    pub ii3_merge_min_similarity:  f64,
+    pub ii3_crdt_robust:           bool,
+    pub ii3_survived_mean_energy:  f64,
+    pub ii3_failed_mean_energy:    f64,
+
+    // Unification
+    pub unification_jaccard_2000:  f64,
+    pub unification_mean_coupling: f64,
+    pub unification_verdict_2000:  String,
+}
+
 /// A behaviour that was not explicitly programmed but emerged from the
 /// seven axioms during simulation.  ≥3 required to pass E6.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -64,6 +114,10 @@ pub struct FtcFindings {
     // ── Which axiom is load-bearing? ────────────────────────────────────────
     /// Maps test name → axiom letter whose removal breaks the test.
     pub load_bearing_axioms:          Vec<(String, String)>,
+}
+
+impl Phase2Findings {
+    pub fn new() -> Self { Self::default() }
 }
 
 impl FtcFindings {
