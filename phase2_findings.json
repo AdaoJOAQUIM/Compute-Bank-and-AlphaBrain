@@ -226,12 +226,12 @@
   ],
   "ii3_patterns_tested": 10,
   "ii3_patterns_survived": 8,
-  "ii3_merge_mean_similarity": 0.908203125,
-  "ii3_merge_min_similarity": 0.51171875,
+  "ii3_merge_mean_similarity": 0.913671875,
+  "ii3_merge_min_similarity": 0.5703125,
   "ii3_crdt_robust": true,
-  "ii3_survived_mean_energy": 0.14627837768404106,
-  "ii3_failed_mean_energy": 0.000661213283365214,
-  "unification_jaccard_2000": 0.2514285714285715,
-  "unification_mean_coupling": 0.5062561346182776,
+  "ii3_survived_mean_energy": 0.14676920266259685,
+  "ii3_failed_mean_energy": 0.0008748376428684423,
+  "unification_jaccard_2000": 0.25035714285714294,
+  "unification_mean_coupling": 0.5012460475208135,
   "unification_verdict_2000": "converging"
 }
