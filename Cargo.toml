@@ -1,3 +1,3 @@
 [workspace]
-members = ["ftc-core", "ftc-sim", "ftc-findings"]
+members = ["ftc-core", "ftc-sim", "ftc-findings", "alpha-core", "alpha-sim", "alpha-findings"]
 resolver = "2"
