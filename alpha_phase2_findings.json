@@ -25,13 +25,13 @@
   "primary_breakthrough": "Half-kill resilience (E2), holographic survival (E8), W-CRDT merge (E11), and Landauer compliance (E10) validate distributed sparse Hopfield memory as a robust substrate for AlphaBrain v10.0.",
   "epistemic_tags": {
     "E12": "EMPIRICAL",
-    "E13": "MEASUREMENT",
-    "E11": "EMPIRICAL",
-    "E10": "EMPIRICAL",
-    "E9": "EMPIRICAL",
     "E17": "EMPIRICAL",
-    "E20": "EMPIRICAL",
+    "E11": "EMPIRICAL",
     "E2": "EMPIRICAL",
-    "E8": "EMPIRICAL"
+    "E10": "EMPIRICAL",
+    "E8": "EMPIRICAL",
+    "E13": "MEASUREMENT",
+    "E9": "EMPIRICAL",
+    "E20": "EMPIRICAL"
   }
 }
