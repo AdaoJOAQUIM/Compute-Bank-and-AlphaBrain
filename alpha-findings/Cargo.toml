@@ -7,6 +7,10 @@ edition = "2021"
 name = "run-alpha-phase1"
 path = "src/main.rs"
 
+[[bin]]
+name = "run-alpha-phase2"
+path = "src/phase2.rs"
+
 [dependencies]
 alpha-core = { path = "../alpha-core" }
 alpha-sim = { path = "../alpha-sim" }
