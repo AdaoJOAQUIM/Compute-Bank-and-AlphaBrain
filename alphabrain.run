@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="https://github.com/adaojoaquim/Compute-Bank-and-AlphaBrain"
+INSTALL_DIR="${HOME}/.alphabrain"
+
+echo "AlphaBrain v10.0 — Device-First Intelligence"
+echo "Installing to ${INSTALL_DIR}..."
+
+# Check Rust
+if ! command -v cargo &>/dev/null; then
+  echo "Installing Rust..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+  source "${HOME}/.cargo/env"
+fi
+
+mkdir -p "${INSTALL_DIR}"
+
+# Clone or update
+if [ -d "${INSTALL_DIR}/repo" ]; then
+  git -C "${INSTALL_DIR}/repo" pull --ff-only
+else
+  git clone --depth=1 "${REPO}" "${INSTALL_DIR}/repo"
+fi
+
+cd "${INSTALL_DIR}/repo"
+cargo build --release --bin run-alpha-phase1 2>/dev/null
+cp target/release/run-alpha-phase1 "${INSTALL_DIR}/alphabrain"
+
+echo ""
+echo "Installation complete!"
+echo "Run: ${INSTALL_DIR}/alphabrain"
+echo ""
+echo "AlphaBrain facts:"
+echo "  No GPU required. Runs on Raspberry Pi."
+echo "  No pre-trained models. Language crystallizes from your usage."
+echo "  No cloud required. Your laptop is the primary node."
