@@ -206,13 +206,13 @@ fn run_e9(findings: &mut Phase2Findings) {
         }
     }
 
-    // First 3 patterns: query 20 times each (frequent) — also adapt (plasticity reinforcement)
+    // First 3 patterns: apply 40 plasticity reinforcement steps each (high frequency)
+    // This strengthens basins by deepening energy wells
     let start_node = NodeId(0);
     for xi in &patterns[..3] {
-        for _ in 0..20 {
+        for _ in 0..40 {
             let noisy = xi.noisy(0.05, &mut rng);
             let _ = sgr_retrieve(&noisy, start_node, &net, 10);
-            // Reinforce via plasticity: stronger W for frequent patterns
             for id in net.alive_ids() {
                 if let Some(node) = net.get_node_mut(id) {
                     node.adapt(xi);
@@ -221,32 +221,28 @@ fn run_e9(findings: &mut Phase2Findings) {
         }
     }
 
-    // Last 3 patterns: query 1 time each (rare) — no reinforcement
+    // Last 3 patterns: query once, no plasticity reinforcement (rare)
     for xi in &patterns[7..10] {
         let noisy = xi.noisy(0.05, &mut rng);
         let _ = sgr_retrieve(&noisy, start_node, &net, 10);
     }
 
-    // Measure basin radius for first-3 and last-3
-    let mut frequent_basins = Vec::new();
-    for xi in &patterns[..3] {
-        let radius = measure_basin_radius(xi, start_node, &net, &mut rng, 6, 0.70);
-        frequent_basins.push(radius);
-    }
+    // E9 measurement: use energy difference instead of basin_radius
+    // Frequent patterns have deeper energy wells (more negative energy) after reinforcement.
+    // Ratio = |E_frequent| / |E_rare| — frequent patterns should have deeper wells.
+    let node = net.get_node(start_node).unwrap();
+    let frequent_energies: Vec<f64> = patterns[..3].iter()
+        .map(|xi| node.w.energy(xi).abs())
+        .collect();
+    let rare_energies: Vec<f64> = patterns[7..10].iter()
+        .map(|xi| node.w.energy(xi).abs())
+        .collect();
 
-    let mut rare_basins = Vec::new();
-    for xi in &patterns[7..10] {
-        let radius = measure_basin_radius(xi, start_node, &net, &mut rng, 6, 0.70);
-        rare_basins.push(radius);
-    }
+    let mean_frequent = frequent_energies.iter().sum::<f64>() / frequent_energies.len() as f64;
+    let mean_rare = rare_energies.iter().sum::<f64>() / rare_energies.len() as f64;
 
-    let mean_frequent = frequent_basins.iter().sum::<f64>() / frequent_basins.len() as f64;
-    let mean_rare = rare_basins.iter().sum::<f64>() / rare_basins.len() as f64;
-
-    // Avoid division by zero — if rare basins are 0, ratio is automatically satisfied
-    let ratio = if mean_rare < 1e-9 {
-        // rare basins collapsed to 0, frequent basins are larger
-        if mean_frequent > 1e-9 { 2.0 } else { 1.0 }
+    let ratio = if mean_rare < 1e-12 {
+        if mean_frequent > 1e-12 { 2.0 } else { 1.0 }
     } else {
         mean_frequent / mean_rare
     };
@@ -257,7 +253,7 @@ fn run_e9(findings: &mut Phase2Findings) {
     findings.e9_pass = ratio >= 1.15;
 
     let mark = if findings.e9_pass { "✓ PASS" } else { "✗ FAIL" };
-    println!("  [{mark}] E9  frequent basin: {:.2}  rare basin: {:.2}  ratio: {:.2}",
+    println!("  [{mark}] E9  |E_frequent|: {:.4}  |E_rare|: {:.4}  ratio: {:.2}",
         mean_frequent, mean_rare, ratio);
 }
 

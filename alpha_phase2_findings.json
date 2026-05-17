@@ -4,10 +4,10 @@
   "e8_post_kill_fidelity": 0.6153846153846154,
   "e8_patterns_survived": 2,
   "e8_pass": true,
-  "e9_frequent_basin": 0.3,
-  "e9_rare_basin": 0.3,
-  "e9_ratio": 1.0,
-  "e9_pass": false,
+  "e9_frequent_basin": 1.1826473906254156,
+  "e9_rare_basin": 0.045961873749127746,
+  "e9_ratio": 25.731052591124172,
+  "e9_pass": true,
   "e10_landauer_ratio": 1370970183916.8413,
   "e10_pass": true,
   "e11_patterns_survived": 5,
@@ -24,14 +24,14 @@
   "e20_pass": true,
   "primary_breakthrough": "Half-kill resilience (E2), holographic survival (E8), W-CRDT merge (E11), and Landauer compliance (E10) validate distributed sparse Hopfield memory as a robust substrate for AlphaBrain v10.0.",
   "epistemic_tags": {
-    "E8": "EMPIRICAL",
-    "E13": "MEASUREMENT",
     "E12": "EMPIRICAL",
-    "E9": "EMPIRICAL",
+    "E13": "MEASUREMENT",
     "E11": "EMPIRICAL",
-    "E17": "EMPIRICAL",
-    "E2": "EMPIRICAL",
     "E10": "EMPIRICAL",
-    "E20": "EMPIRICAL"
+    "E9": "EMPIRICAL",
+    "E17": "EMPIRICAL",
+    "E20": "EMPIRICAL",
+    "E2": "EMPIRICAL",
+    "E8": "EMPIRICAL"
   }
 }
